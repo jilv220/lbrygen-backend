@@ -118,6 +118,8 @@ app.get('/api/resolveSingle', (req, res) => {
 app.get('/stream/*', (req, res) => {
 
     let streamingUrl = 'http://localhost:5280' + req.url
+    let contentLength 
+    let contentRange
     let contentType
 
     fetch(streamingUrl,
@@ -125,11 +127,17 @@ app.get('/stream/*', (req, res) => {
             method: 'GET',
         })
         .then(response => {
+            contentLength = response.headers.get('content-length')
+            contentRange = response.headers.get('content-range')
             contentType = response.headers.get('content-type')
             return response.body
         })
         .then(stream => {
-            res.writeHead(200, {"content-type": `${contentType}; charset=utf-8`})
+            res.writeHead(206, {
+                "content-length" : contentLength,
+                "content-range" : contentRange,
+                "content-type": contentType
+            })
             stream.pipe(res)
         })
 })
