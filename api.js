@@ -1,9 +1,9 @@
-const express = require('express')
-const compression = require('compression')
-const cors = require('cors')
-const httpProxy = require('http-proxy')
+import express from 'express'
+import compression from 'compression'
+import cors from 'cors'
+import fetch from 'node-fetch'
+import axios from 'axios'
 
-const axios = require('axios')
 const app = express()
 
 app.use(cors())
@@ -16,22 +16,19 @@ const lbryPort = 5279
 const lbryUrl = `${base}:${lbryPort}`
 const PAGE_SIZE = 20
 
-// Reverse proxy content from lbrynet
-httpProxy.createProxyServer({target:'http://localhost:5280'}).listen(5001)
-
 function apiCall(params) {
 
-    return new Promise ((resolve, reject) => {
+    return new Promise((resolve, reject) => {
         axios
-        .post(lbryUrl, params)
-        .then(res => {
-            //console.log(res.data)
-            resolve(res.data)
-        })
-        .catch(error => {
-            //console.error(error)
-            reject(error)
-        })
+            .post(lbryUrl, params)
+            .then(res => {
+                //console.log(res.data)
+                resolve(res.data)
+            })
+            .catch(error => {
+                //console.error(error)
+                reject(error)
+            })
     })
 }
 
@@ -44,20 +41,20 @@ app.get('/api/status', (req, res) => {
 
     req.setTimeout(200);
 
-    let params = { method : 'status' }
+    let params = { method: 'status' }
 
     apiCall(params)
-    .then((daemonRes) => {
-        //console.log(daemonRes)
-        res.send(daemonRes)
-    })
-    .catch((error) => {})
+        .then((daemonRes) => {
+            //console.log(daemonRes)
+            res.send(daemonRes)
+        })
+        .catch((error) => { })
 
 })
 
 app.get('/api/search', (req, res) => {
 
-    let tag = req.query.t 
+    let tag = req.query.t
     let text = req.query.q
     let channel = req.query.c
 
@@ -69,47 +66,68 @@ app.get('/api/search', (req, res) => {
 
     // console.log(tag)
 
-    let params = { method : 'claim_search',
-                   params : { text : text === undefined ? undefined : text,
-                              fee_amount : '<=0',   // only serve free content
-                              page : pageNum === undefined ? 1 : Number(pageNum),
-                              page_size : pageSize == undefined ? PAGE_SIZE : Number(pageSize),
-                              stream_type : [ streamType == undefined ? 'video' : streamType ],
-                              order_by : order == undefined ? 'release_time' : order,
-                              no_totals : true }}
-    
+    let params = {
+        method: 'claim_search',
+        params: {
+            text: text === undefined ? undefined : text,
+            fee_amount: '<=0',   // only serve free content
+            page: pageNum === undefined ? 1 : Number(pageNum),
+            page_size: pageSize == undefined ? PAGE_SIZE : Number(pageSize),
+            stream_type: [streamType == undefined ? 'video' : streamType],
+            order_by: order == undefined ? 'release_time' : order,
+            no_totals: true
+        }
+    }
+
     // support both string and array
-    if ( tag !== undefined) {
+    if (tag !== undefined) {
 
         if (typeof tag == "string") {
-            params["params"]["any_tags"] = [ tag ]
+            params["params"]["any_tags"] = [tag]
         } else {
             params["params"]["any_tags"] = tag
         }
     }
 
-    if ( channel !== undefined ) {
+    if (channel !== undefined) {
         params["params"]["channel"] = channel
     }
 
     apiCall(params)
-    .then((daemonRes) => {
-        res.send(daemonRes)
-    })
+        .then((daemonRes) => {
+            res.send(daemonRes)
+        })
 })
 
 app.get('/api/resolveSingle', (req, res) => {
 
     let canonUrl = req.query.curl
-    
-    let params = { method : 'resolve',
-                   params : { urls : canonUrl === undefined ? undefined : canonUrl }}
-    
+
+    let params = {
+        method: 'resolve',
+        params: { urls: canonUrl === undefined ? undefined : canonUrl }
+    }
+
     apiCall(params)
-    .then((daemonRes) => {
-      //console.log(daemonRes)
-      res.send(daemonRes)
-    })
+        .then((daemonRes) => {
+            //console.log(daemonRes)
+            res.send(daemonRes)
+        })
+})
+
+app.get('/stream/*', (req, res) => {
+
+    let streamingUrl = 'http://localhost:5280' + req.url
+
+    fetch(streamingUrl,
+        {
+            method: 'GET',
+        })
+        .then(response => response.body)
+        .then(stream => {
+            res.writeHead(200, {"content-type": "video/mp4; charset=utf-8"})
+            stream.pipe(res)
+        })
 })
 
 app.get('/api/getStream', (req, res) => {
@@ -122,20 +140,24 @@ app.get('/api/getStream', (req, res) => {
         isDownload = True
     }
 
-    let params = { method : 'get',
-                   params : { uri : uri === undefined ? undefined : uri,
-                              save_file : isDownload,
-                              timeout : 10 }}
+    let params = {
+        method: 'get',
+        params: {
+            uri: uri === undefined ? undefined : uri,
+            save_file: isDownload,
+            timeout: 10
+        }
+    }
 
     if (isDownload) {
-        params["params"]["file_name"] = uri.replace('lbry://', '') 
+        params["params"]["file_name"] = uri.replace('lbry://', '')
     }
 
     apiCall(params)
-    .then((daemonRes) => {
-        console.log(daemonRes)
-        res.send(daemonRes.result)
-    })
+        .then((daemonRes) => {
+            console.log(daemonRes)
+            res.send(daemonRes.result)
+        })
 })
 
 // Api entry

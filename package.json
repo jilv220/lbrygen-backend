@@ -2,6 +2,7 @@
   "name": "daemon",
   "version": "1.0.0",
   "description": "api and daemon required for lbrygen-electron",
+  "type": "module",
   "main": "api.js",
   "license": "MIT",
   "private": true,
@@ -10,7 +11,7 @@
     "compression": "^1.7.4",
     "cors": "^2.8.5",
     "express": "^4.17.3",
-    "http-proxy": "^1.18.1"
+    "node-fetch": "^3.2.4"
   },
   "scripts": {
     "start": "2>/dev/null 1>/dev/null ./lbrynet start & node api.js"
