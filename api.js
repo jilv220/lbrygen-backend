@@ -122,6 +122,27 @@ app.get('/stream/*', (req, res) => {
     let contentRange
     let contentType
 
+    // record start
+    let start
+    const range = req.headers.range;
+    if (range) {
+
+        const bytesPrefix = "bytes=";
+
+        if (range.startsWith(bytesPrefix)) {
+
+            const bytesRange = range.substring(bytesPrefix.length)
+            const parts = bytesRange.split("-")
+
+            if (parts.length === 2) {
+                const rangeStart = parts[0] && parts[0].trim()
+                if (rangeStart && rangeStart.length > 0) {
+                    start = parseInt(rangeStart)
+                }
+            }
+        }
+    }
+
     fetch(streamingUrl,
         {
             method: 'GET',
@@ -135,7 +156,8 @@ app.get('/stream/*', (req, res) => {
         .then(stream => {
             res.writeHead(206, {
                 "content-length" : contentLength,
-                "content-range" : contentRange,
+                "content-range" : start === undefined ? contentRange : 
+                                                        contentRange.replace(contentLength-1, start + 2000000),
                 "content-type": contentType
             })
             stream.pipe(res)
