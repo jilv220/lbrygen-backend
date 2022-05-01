@@ -157,7 +157,8 @@ app.get('/stream/*', (req, res) => {
             res.writeHead(206, {
                 "content-length" : contentLength,
                 "content-range" : start === undefined ? contentRange : 
-                                                        contentRange.replace(contentLength-1, start + 2000000),
+                                                        contentRange.replace(contentLength-1, 
+                                                            start + Number.parseInt(contentLength / 5) ),
                 "content-type": contentType
             })
             stream.pipe(res)
