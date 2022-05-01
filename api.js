@@ -125,7 +125,7 @@ app.get('/stream/*', (req, res) => {
         })
         .then(response => response.body)
         .then(stream => {
-            res.writeHead(200, {"content-type": "video/mp4; charset=utf-8"})
+            res.writeHead(206, {"content-type": "video/mp4; charset=utf-8"})
             stream.pipe(res)
         })
 })
