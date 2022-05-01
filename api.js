@@ -31,6 +31,10 @@ function apiCall(params) {
 }
 
 // Api route
+app.get('/', (req, res) => {
+    res.send('The api is up and running.')
+})
+
 app.get('/api/status', (req, res) => {
 
     req.setTimeout(200);
