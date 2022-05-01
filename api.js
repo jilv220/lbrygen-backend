@@ -118,14 +118,18 @@ app.get('/api/resolveSingle', (req, res) => {
 app.get('/stream/*', (req, res) => {
 
     let streamingUrl = 'http://localhost:5280' + req.url
+    let contentType
 
     fetch(streamingUrl,
         {
             method: 'GET',
         })
-        .then(response => response.body)
+        .then(response => {
+            contentType = response.headers.get('content-type')
+            return response.body
+        })
         .then(stream => {
-            res.writeHead(200, {"content-type": "video/mp4; charset=utf-8"})
+            res.writeHead(200, {"content-type": `${contentType}; charset=utf-8`})
             stream.pipe(res)
         })
 })
