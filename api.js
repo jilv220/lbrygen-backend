@@ -1,6 +1,8 @@
 const express = require('express')
 const compression = require('compression')
 const cors = require('cors')
+const httpProxy = require('http-proxy')
+
 const axios = require('axios')
 const app = express()
 
@@ -13,6 +15,9 @@ const port = process.env.PORT || 5000
 const lbryPort = 5279
 const lbryUrl = `${base}:${lbryPort}`
 const PAGE_SIZE = 20
+
+// Reverse proxy content from lbrynet
+httpProxy.createProxyServer({target:'http://localhost:5280'}).listen(5001)
 
 function apiCall(params) {
 
@@ -128,7 +133,7 @@ app.get('/api/getStream', (req, res) => {
 
     apiCall(params)
     .then((daemonRes) => {
-        //console.log(daemonRes)
+        console.log(daemonRes)
         res.send(daemonRes.result)
     })
 })
