@@ -197,4 +197,4 @@ app.get('/api/getStream', (req, res) => {
 
 // Api entry
 app.listen(port);
-console.log('API server started on: ' + port)
+console.log('API server started on: ' + base + ":" + port)
