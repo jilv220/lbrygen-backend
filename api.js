@@ -10,7 +10,7 @@ app.use(cors())
 app.use(compression())
 
 // Api config
-const base = 'http://localhost'
+const base = process.env.BASE || 'http://localhost'
 const port = process.env.PORT || 5000
 const lbryPort = 5279
 const lbryUrl = `${base}:${lbryPort}`
