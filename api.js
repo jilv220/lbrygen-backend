@@ -6,9 +6,6 @@ import axios from 'axios'
 
 const app = express()
 
-app.use(cors())
-app.use(compression())
-
 // Api config
 const base = process.env.BASE || 'http://localhost'
 const port = process.env.PORT || 5000
@@ -18,6 +15,11 @@ const lbryPort = 5279
 const lbryUrl = `${lbryBase}:${lbryPort}`
 
 const PAGE_SIZE = 20
+
+app.use(cors({
+    origin: base
+}))
+app.use(compression())
 
 function apiCall(params) {
 
