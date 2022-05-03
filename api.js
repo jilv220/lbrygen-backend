@@ -7,7 +7,7 @@ import axios from 'axios'
 const app = express()
 
 // Api config
-const base = process.env.BASE || 'http://localhost'
+const base = 'http://localhost'
 const port = process.env.PORT || 5000
 
 const lbryBase = 'http://localhost'
