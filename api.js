@@ -12,8 +12,11 @@ app.use(compression())
 // Api config
 const base = process.env.BASE || 'http://localhost'
 const port = process.env.PORT || 5000
+
+const lbryBase = 'http://localhost'
 const lbryPort = 5279
-const lbryUrl = `${base}:${lbryPort}`
+const lbryUrl = `${lbryBase}:${lbryPort}`
+
 const PAGE_SIZE = 20
 
 function apiCall(params) {
