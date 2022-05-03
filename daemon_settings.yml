@@ -4,5 +4,5 @@ network_storage_limit: 0
 save_files: false
 share_usage_data: true
 api: 127.0.0.1:5279
-streaming_server: 127.0.0.1:5281
+streaming_server: 127.0.0.1:5280
 allowed-origin: '*'
