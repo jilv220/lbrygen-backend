@@ -14,7 +14,7 @@
     "node-fetch": "^3.2.4"
   },
   "scripts": {
-    "start": "2>/dev/null 1>/dev/null ./lbrynet start & node api.js"
+    "start": "2>/dev/null 1>/dev/null ./lbrynet start --config=daemon_settings.yml & node api.js"
   },
   "engines": {
     "node": "17.x"

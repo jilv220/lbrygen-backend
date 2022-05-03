@@ -1,0 +1,6 @@
+blob_storage_limit: 25000
+max_key_fee: null
+network_storage_limit: 0
+save_files: false
+share_usage_data: true
+allowed-origin: '*'

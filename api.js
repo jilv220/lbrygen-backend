@@ -190,7 +190,7 @@ app.get('/api/getStream', (req, res) => {
 
     apiCall(params)
         .then((daemonRes) => {
-            console.log(daemonRes)
+            //console.log(daemonRes)
             res.send(daemonRes.result)
         })
 })
