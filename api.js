@@ -13,9 +13,8 @@ app.use(compression())
 const base = process.env.BASE || 'http://localhost'
 const port = process.env.PORT || 5000
 
-const lbryBase = 'http://localhost'
 const lbryPort = 5279
-const lbryUrl = `${lbryBase}:${lbryPort}`
+const lbryUrl = `${base}:${lbryPort}`
 
 const PAGE_SIZE = 20
 
@@ -201,3 +200,4 @@ app.get('/api/getStream', (req, res) => {
 // Api entry
 app.listen(port);
 console.log('API server started on: ' + base + ":" + port)
+console.log('LBRY server started on: ' + base + ":" + lbryPort)
