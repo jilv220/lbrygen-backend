@@ -16,9 +16,7 @@ const lbryUrl = `${lbryBase}:${lbryPort}`
 
 const PAGE_SIZE = 20
 
-app.use(cors({
-    origin: base
-}))
+app.use(cors())
 app.use(compression())
 
 function apiCall(params) {
