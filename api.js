@@ -10,12 +10,11 @@ const {STREAM_IP, API_BASE} = env
 const app = express()
 
 // Api config
-const base = 'http://localhost'
+const base = 'http://127.0.0.1'
 const port = process.env.PORT || 5000
 
-const lbryBase = 'http://localhost'
 const lbryPort = 5279
-const lbryUrl = `${lbryBase}:${lbryPort}`
+const lbryUrl = `${base}:${lbryPort}`
 
 const PAGE_SIZE = 20
 
