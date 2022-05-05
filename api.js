@@ -196,9 +196,10 @@ app.get('/api/getStream', (req, res) => {
     apiCall(params)
         .then((daemonRes) => {
             
-            daemonRes.result.streaming_url =
-                daemonRes.result.streaming_url.replace(STREAM_IP, API_BASE)
-
+            if (daemonRes.result.streaming_url) {
+                daemonRes.result.streaming_url =
+                    daemonRes.result.streaming_url.replace(STREAM_IP, API_BASE)
+            }
             res.send(daemonRes.result)
         })
 })
