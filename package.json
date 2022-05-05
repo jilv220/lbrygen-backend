@@ -17,6 +17,6 @@
     "start": "2>/dev/null 1>/dev/null ./lbrynet start --config=daemon_settings.yml & node api.js"
   },
   "engines": {
-    "node": "17.x"
+    "node": "18.x"
   }
 }

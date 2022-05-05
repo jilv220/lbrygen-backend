@@ -4,6 +4,9 @@ import cors from 'cors'
 import fetch from 'node-fetch'
 import axios from 'axios'
 
+import env from './env.cjs'
+const {STREAM_IP, API_BASE} = env
+
 const app = express()
 
 // Api config
@@ -193,7 +196,10 @@ app.get('/api/getStream', (req, res) => {
 
     apiCall(params)
         .then((daemonRes) => {
-            //console.log(daemonRes)
+            
+            daemonRes.result.streaming_url =
+                daemonRes.result.streaming_url.replace(STREAM_IP, API_BASE)
+
             res.send(daemonRes.result)
         })
 })
