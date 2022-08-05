@@ -68,6 +68,7 @@ app.get('/api/search', (req, res) => {
     let tag = req.query.t
     let text = req.query.q
     let channel = req.query.c
+    let channelIDs = req.query.chs
 
     let pageNum = req.query.p
     let pageSize = req.query.ps
@@ -101,11 +102,11 @@ app.get('/api/search', (req, res) => {
     }
 
     if (channel !== undefined) {
-        if (typeof channel == "string") {
-            params["params"]["channel_ids"] = [channel]
-        } else {
-            params["params"]["channel_ids"] = channel
-        }
+        params["params"]["channel"] = channel
+    }
+
+    if (channelIDs !== undefined) {
+        params["params"]["channel_ids"] = channelIDs
     }
 
     apiCall(params)
