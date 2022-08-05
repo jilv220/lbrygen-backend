@@ -4,8 +4,14 @@ import cors from 'cors'
 import fetch from 'node-fetch'
 import axios from 'axios'
 
+// import constants
 import env from './env.cjs'
 const {STREAM_IP, API_BASE} = env
+
+import tech_channels from './categories/tech.cjs'
+import gaming_channels from './categories/gaming.cjs'
+const {TECH_CHANNELS} = tech_channels
+const {GAMING_CHANNELS} = gaming_channels
 
 const app = express()
 
@@ -95,13 +101,29 @@ app.get('/api/search', (req, res) => {
     }
 
     if (channel !== undefined) {
-        params["params"]["channel"] = channel
+        if (typeof channel == "string") {
+            params["params"]["channel_ids"] = [channel]
+        } else {
+            params["params"]["channel_ids"] = channel
+        }
     }
 
     apiCall(params)
         .then((daemonRes) => {
             res.send(daemonRes)
         })
+})
+
+app.get('/api/get', (req, res) => {
+
+    let data = {
+        
+        data: {
+            gaming: GAMING_CHANNELS,
+            tech: TECH_CHANNELS
+        }
+    }
+    res.send(data)
 })
 
 app.get('/api/resolveSingle', (req, res) => {
