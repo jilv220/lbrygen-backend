@@ -3,15 +3,9 @@ import compression from 'compression'
 import cors from 'cors'
 import fetch from 'node-fetch'
 import axios from 'axios'
+import path from 'path'
 
-// import constants
-import env from './env.cjs'
-const {STREAM_IP, API_BASE} = env
-
-import tech_channels from './categories/tech.cjs'
-import gaming_channels from './categories/gaming.cjs'
-const {TECH_CHANNELS} = tech_channels
-const {GAMING_CHANNELS} = gaming_channels
+import {STREAM_IP, API_BASE} from './env.js'
 
 const app = express()
 
@@ -27,18 +21,18 @@ const PAGE_SIZE = 20
 app.use(cors())
 app.use(compression())
 
-function apiCall(params) {
+function apiCall(params: any) {
 
     return new Promise((resolve, reject) => {
-        axios
-            .post(lbryUrl, params)
+        axios.
+            post(lbryUrl, params)
             .then(res => {
                 //console.log(res.data)
                 resolve(res.data)
             })
-            .catch(error => {
-                //console.error(error)
-                reject(error)
+            .catch(err => {
+                //console.error(err)
+                reject(err)
             })
     })
 }
@@ -76,37 +70,23 @@ app.get('/api/search', (req, res) => {
 
     let order = req.query.o
 
-    // console.log(tag)
+    let searchParams = {
+        text: text === undefined ? undefined : text,
+        fee_amount: '<=0',   // only serve free content
+        page: pageNum === undefined ? 1 : Number(pageNum),
+        page_size: pageSize == undefined ? PAGE_SIZE : Number(pageSize),
+        stream_type: streamType === undefined ? ['video'] : [streamType],
+        order_by: order === undefined ? 'release_time' : order,
+        any_tags: tag == undefined ? undefined : typeof tag === 'string' ? [tag] : tag,
+        channel: channel === undefined ? undefined : channel,
+        channel_ids: channelIDs === undefined ? undefined : channelIDs,
+        no_totals: true
+    }
 
+    // console.log(tag)
     let params = {
         method: 'claim_search',
-        params: {
-            text: text === undefined ? undefined : text,
-            fee_amount: '<=0',   // only serve free content
-            page: pageNum === undefined ? 1 : Number(pageNum),
-            page_size: pageSize == undefined ? PAGE_SIZE : Number(pageSize),
-            stream_type: [streamType == undefined ? 'video' : streamType],
-            order_by: order == undefined ? 'release_time' : order,
-            no_totals: true
-        }
-    }
-
-    // support both string and array
-    if (tag !== undefined) {
-
-        if (typeof tag == "string") {
-            params["params"]["any_tags"] = [tag]
-        } else {
-            params["params"]["any_tags"] = tag
-        }
-    }
-
-    if (channel !== undefined) {
-        params["params"]["channel"] = channel
-    }
-
-    if (channelIDs !== undefined) {
-        params["params"]["channel_ids"] = channelIDs
+        params: searchParams
     }
 
     apiCall(params)
@@ -116,15 +96,8 @@ app.get('/api/search', (req, res) => {
 })
 
 app.get('/api/get', (req, res) => {
-
-    let data = {
-        
-        data: {
-            gaming: GAMING_CHANNELS,
-            tech: TECH_CHANNELS
-        }
-    }
-    res.send(data)
+    res.header("Content-Type",'application/json')
+    res.sendFile(path.join(__dirname, 'data.json'))
 })
 
 app.get('/api/resolveSingle', (req, res) => {
@@ -146,12 +119,12 @@ app.get('/api/resolveSingle', (req, res) => {
 app.get('/stream/*', (req, res) => {
 
     let streamingUrl = 'http://localhost:5280' + req.url
-    let contentLength 
-    let contentRange
-    let contentType
+    let contentLength: any
+    let contentRange: any
+    let contentType: any 
 
     // record start
-    let start
+    let start: number | undefined
     const range = req.headers.range;
     if (range) {
 
@@ -182,25 +155,27 @@ app.get('/stream/*', (req, res) => {
             return response.body
         })
         .then(stream => {
+
             res.writeHead(206, {
                 "content-length" : contentLength,
-                "content-range" : start === undefined ? contentRange : 
-                                                        contentRange.replace(contentLength-1, 
-                                                            start + Number.parseInt(contentLength / 5) ),
+                "content-range" : contentRange,
                 "content-type": contentType
             })
-            stream.pipe(res)
+
+            if(stream) {
+                stream.pipe(res)
+            }
         })
 })
 
 app.get('/api/getStream', (req, res) => {
 
-    let uri = req.query.url
+    let uri = req.query.url as string | undefined
     let download = req.query.d
 
     let isDownload = false
     if (download === 'y') {
-        isDownload = True
+        isDownload = true
     }
 
     let params = {
@@ -208,16 +183,13 @@ app.get('/api/getStream', (req, res) => {
         params: {
             uri: uri === undefined ? undefined : uri,
             save_file: isDownload,
+            file_name: (uri && isDownload) ? uri.replace('lbry://', ''): undefined,
             timeout: 10
         }
     }
 
-    if (isDownload) {
-        params["params"]["file_name"] = uri.replace('lbry://', '')
-    }
-
     apiCall(params)
-        .then((daemonRes) => {
+        .then((daemonRes: any) => {
             
             if (daemonRes.result.streaming_url) {
                 daemonRes.result.streaming_url =
