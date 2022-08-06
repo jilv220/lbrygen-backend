@@ -3,7 +3,6 @@ import compression from 'compression';
 import cors from 'cors';
 import fetch from 'node-fetch';
 import axios from 'axios';
-import path from 'path';
 import { STREAM_IP, API_BASE } from './env.js';
 const app = express();
 // Api config
@@ -75,7 +74,8 @@ app.get('/api/search', (req, res) => {
 });
 app.get('/api/get', (req, res) => {
     res.header("Content-Type", 'application/json');
-    res.sendFile(path.join(__dirname, 'data.json'));
+    let options = { root: './' };
+    res.sendFile('./data.json', options);
 });
 app.get('/api/resolveSingle', (req, res) => {
     let canonUrl = req.query.curl;

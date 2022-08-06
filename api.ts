@@ -97,7 +97,9 @@ app.get('/api/search', (req, res) => {
 
 app.get('/api/get', (req, res) => {
     res.header("Content-Type",'application/json')
-    res.sendFile(path.join(__dirname, 'data.json'))
+
+    let options = {root: './'}
+    res.sendFile('./data.json', options)
 })
 
 app.get('/api/resolveSingle', (req, res) => {
