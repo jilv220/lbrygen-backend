@@ -81,6 +81,8 @@ app.get('/api/get', (req, res) => {
 });
 app.get('/api/fetch', async (req, res) => {
     let category = req.query.ctgy;
+    let pageNum = req.query.p;
+    let isFetchNext = (req.query.n === 'y');
     const fileContents = fs.readFileSync('./data.json', 'utf8');
     try {
         const data = JSON.parse(fileContents);
@@ -106,9 +108,19 @@ app.get('/api/fetch', async (req, res) => {
             method: 'claim_search',
             params: searchParams
         };
-        let daemonRes = await apiCall(params);
+        let daemonRes;
+        if (isFetchNext) {
+            searchParams.page = Number(pageNum);
+            searchParams.page_size = 20;
+        }
+        daemonRes = await apiCall(params);
         daemonRes.result.items = filterDup(daemonRes.result.items);
-        daemonRes.result.items = daemonRes.result.items.slice(0, 20);
+        if (isFetchNext) {
+            daemonRes.result.items = daemonRes.result.items.slice(0, 8);
+        }
+        else {
+            daemonRes.result.items = daemonRes.result.items.slice(0, 20);
+        }
         res.send(daemonRes);
     }
     catch (err) {
