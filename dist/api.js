@@ -3,7 +3,9 @@ import compression from 'compression';
 import cors from 'cors';
 import fetch from 'node-fetch';
 import axios from 'axios';
+import fs from 'fs';
 import { STREAM_IP, API_BASE } from './env.js';
+import { filterDup } from './arrayUtils.js';
 const app = express();
 // Api config
 const base = 'http://127.0.0.1';
@@ -76,6 +78,50 @@ app.get('/api/get', (req, res) => {
     res.header("Content-Type", 'application/json');
     let options = { root: './' };
     res.sendFile('./data.json', options);
+});
+app.get('/api/fetch', async (req, res) => {
+    let category = req.query.ctgy;
+    const fileContents = fs.readFileSync('./data.json', 'utf8');
+    try {
+        const data = JSON.parse(fileContents);
+        let chIds;
+        switch (category) {
+            case 'tech':
+                chIds = data.en.categories.TECHNOLOGY.channelIds;
+                break;
+        }
+        let searchParams = {
+            text: undefined,
+            fee_amount: '<=0',
+            page: 1,
+            page_size: PAGE_SIZE,
+            stream_type: ['video'],
+            order_by: 'release_time',
+            any_tags: undefined,
+            channel: undefined,
+            channel_ids: chIds,
+            no_totals: true
+        };
+        let params = {
+            method: 'claim_search',
+            params: searchParams
+        };
+        let daemonRes = await apiCall(params);
+        daemonRes.result.items = filterDup(daemonRes.result.items);
+        while (daemonRes.result.items.length <= 20) {
+            // start fetch from next page
+            searchParams.page = 6;
+            searchParams.page_size = 4;
+            let nextRes = await apiCall(params);
+            nextRes.result.items = filterDup(nextRes.result.items);
+            daemonRes.result.items = daemonRes.result.items.concat(nextRes.result.items);
+        }
+        daemonRes.result.items = daemonRes.result.items.slice(0, 20);
+        res.send(daemonRes);
+    }
+    catch (err) {
+        console.error(err);
+    }
 });
 app.get('/api/resolveSingle', (req, res) => {
     let canonUrl = req.query.curl;
