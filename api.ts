@@ -122,6 +122,9 @@ app.get('/api/fetch', async (req, res) => {
             case 'tech':
                 chIds = data.en.categories.TECHNOLOGY.channelIds
                 break
+            case 'news':
+                chIds = data.en.categories.NEWS_AND_POLITICS.channelIds
+                break
         }
 
         let searchParams = {
