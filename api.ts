@@ -123,7 +123,7 @@ app.get('/api/fetch', async (req, res) => {
             text: undefined,
             fee_amount: '<=0',   // only serve free content
             page: 1,
-            page_size: PAGE_SIZE,
+            page_size: 40,
             stream_type: ['video'],
             order_by: 'release_time',
             any_tags: undefined,
@@ -139,18 +139,6 @@ app.get('/api/fetch', async (req, res) => {
 
         let daemonRes: any = await apiCall(params)
         daemonRes.result.items = filterDup(daemonRes.result.items)
-
-        while (daemonRes.result.items.length <= 20) {
-
-            // start fetch from next page
-            searchParams.page = 6
-            searchParams.page_size = 4
-
-            let nextRes : any = await apiCall(params)
-            nextRes.result.items = filterDup(nextRes.result.items)
-            daemonRes.result.items = daemonRes.result.items.concat(nextRes.result.items)
-        }
-
         daemonRes.result.items = daemonRes.result.items.slice(0, 20)
         res.send(daemonRes)
 
