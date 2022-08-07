@@ -116,6 +116,9 @@ app.get('/api/fetch', async (req, res) => {
         let chIds
 
         switch (category) {
+            case 'featured':
+                chIds = data.en.categories.PRIMARY_CONTENT.channelIds
+                break
             case 'tech':
                 chIds = data.en.categories.TECHNOLOGY.channelIds
                 break
