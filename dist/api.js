@@ -94,6 +94,9 @@ app.get('/api/fetch', async (req, res) => {
             case 'education':
                 chIds = data.en.categories.EDUCATION.channelIds;
                 break;
+            case 'gaming':
+                chIds = data.en.categories.GAMING.channelIds;
+                break;
             case 'tech':
                 chIds = data.en.categories.TECHNOLOGY.channelIds;
                 break;
