@@ -1,4 +1,7 @@
 import express from 'express'
+import apicache from 'apicache'
+import redis from 'redis'
+
 import compression from 'compression'
 import cors from 'cors'
 import fetch from 'node-fetch'
@@ -21,6 +24,9 @@ const PAGE_SIZE = 20
 
 app.use(cors())
 app.use(compression())
+
+// Middleware config
+let cacheWithRedis = apicache.options({ redisClient: redis.createClient() }).middleware
 
 function apiCall(params: any) {
 
@@ -103,7 +109,7 @@ app.get('/api/get', (req, res) => {
     res.sendFile('./data.json', options)
 })
 
-app.get('/api/fetch', async (req, res) => {
+app.get('/api/fetch', cacheWithRedis('5 minutes'), async (req, res) => {
 
     let category = req.query.ctgy
     let pageNum = req.query.p
@@ -158,12 +164,12 @@ app.get('/api/fetch', async (req, res) => {
         }
 
         daemonRes = await apiCall(params)
-        daemonRes.result.items = filterDup(daemonRes.result.items)
+        daemonRes.result.items = filterDup(daemonRes.result?.items)
 
         if (isFetchNext) {
-            daemonRes.result.items = daemonRes.result.items.slice(0, 8)
+            daemonRes.result.items = daemonRes.result?.items.slice(0, 8)
         } else {
-            daemonRes.result.items = daemonRes.result.items.slice(0, 20)
+            daemonRes.result.items = daemonRes.result?.items.slice(0, 20)
         }
 
         res.send(daemonRes)
@@ -189,7 +195,7 @@ app.get('/api/resolveSingle', (req, res) => {
         })
 })
 
-app.get('/stream/*', (req, res) => {
+app.get('/stream2/*', (req, res) => {
 
     let streamingUrl = 'http://localhost:5280' + req.url
     let contentLength: any
