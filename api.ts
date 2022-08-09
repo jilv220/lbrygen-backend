@@ -1,6 +1,5 @@
 import express from 'express'
 import apicache from 'apicache'
-import redis from 'redis'
 
 import compression from 'compression'
 import cors from 'cors'
@@ -25,7 +24,7 @@ app.use(cors())
 app.use(compression())
 
 // Middleware config
-let cacheWithRedis = apicache.options({ redisClient: redis.createClient({legacyMode: true}) }).middleware
+let cache = apicache.middleware
 
 function apiCall(params: any) {
 
@@ -108,7 +107,7 @@ app.get('/api/get', (req, res) => {
     res.sendFile('./data.json', options)
 })
 
-app.get('/api/fetch', cacheWithRedis('5 minutes'), async (req, res) => {
+app.get('/api/fetch', cache('5 minutes'), async (req, res) => {
 
     let category = req.query.ctgy
     let pageNum = req.query.p
