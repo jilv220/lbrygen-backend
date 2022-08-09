@@ -1,6 +1,5 @@
 import express from 'express';
 import apicache from 'apicache';
-import redis from 'redis';
 import compression from 'compression';
 import cors from 'cors';
 import fetch from 'node-fetch';
@@ -18,7 +17,7 @@ const PAGE_SIZE = 20;
 app.use(cors());
 app.use(compression());
 // Middleware config
-let cacheWithRedis = apicache.options({ redisClient: redis.createClient({ legacyMode: true }) }).middleware;
+let cache = apicache.middleware;
 function apiCall(params) {
     return new Promise((resolve, reject) => {
         axios.
@@ -83,7 +82,7 @@ app.get('/api/get', (req, res) => {
     let options = { root: './' };
     res.sendFile('./data.json', options);
 });
-app.get('/api/fetch', cacheWithRedis('5 minutes'), async (req, res) => {
+app.get('/api/fetch', cache('5 minutes'), async (req, res) => {
     let category = req.query.ctgy;
     let pageNum = req.query.p;
     let isFetchNext = (req.query.n === 'y');
