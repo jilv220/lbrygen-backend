@@ -18,7 +18,7 @@ const PAGE_SIZE = 20;
 app.use(cors());
 app.use(compression());
 // Middleware config
-let cacheWithRedis = apicache.options({ redisClient: redis.createClient() }).middleware;
+let cacheWithRedis = apicache.options({ redisClient: redis.createClient({ legacyMode: true }) }).middleware;
 function apiCall(params) {
     return new Promise((resolve, reject) => {
         axios.

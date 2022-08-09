@@ -19,14 +19,13 @@ const port = process.env.PORT || 5000
 
 const lbryPort = 5279
 const lbryUrl = `${base}:${lbryPort}`
-
 const PAGE_SIZE = 20
 
 app.use(cors())
 app.use(compression())
 
 // Middleware config
-let cacheWithRedis = apicache.options({ redisClient: redis.createClient() }).middleware
+let cacheWithRedis = apicache.options({ redisClient: redis.createClient({legacyMode: true}) }).middleware
 
 function apiCall(params: any) {
 
