@@ -36,6 +36,10 @@ function apiCall(params) {
 app.get('/', (req, res) => {
     res.send('The api is up and running.');
 });
+app.use('/robots.txt', function (req, res) {
+    res.type('text/plain');
+    res.send("User-agent: *\nDisallow: /");
+});
 app.get('/api/status', (req, res) => {
     req.setTimeout(200);
     let params = { method: 'status' };
