@@ -12,3 +12,7 @@ export function filterDup(arr: Array<any>) {
     }
     return arr
 }
+
+export default {
+  filterDup
+}
