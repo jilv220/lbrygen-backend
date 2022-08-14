@@ -15,8 +15,9 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.ApiController = void 0;
 const common_1 = require("@nestjs/common");
 const app_service_1 = require("../app.service");
-const fs = require("fs");
+const fs_1 = require("fs");
 const path_1 = require("path");
+const node_fetch_1 = require("node-fetch");
 const lbry_1 = require("../lbry");
 const arrayUtils_1 = require("../arrayUtils");
 const env_1 = require("../env");
@@ -74,7 +75,7 @@ let ApiController = class ApiController {
         let category = query.ctgy;
         let pageNum = query.p;
         let isFetchNext = (query.n === 'y');
-        const fileContents = fs.readFileSync((0, path_1.join)('./res', 'data.json'), 'utf8');
+        const fileContents = (0, fs_1.readFileSync)((0, path_1.join)('./res', 'data.json'), 'utf8');
         try {
             const data = JSON.parse(fileContents);
             let chIds;
@@ -155,6 +156,33 @@ let ApiController = class ApiController {
             res.send(daemonRes.result);
         });
     }
+    async download(req, res) {
+        let blob = req.url.split('/').pop();
+        let streamingUrl = 'http://localhost:5280/stream/' + blob;
+        let contentLength;
+        let contentRange;
+        let contentType;
+        (0, node_fetch_1.default)(streamingUrl, {
+            method: 'GET',
+        })
+            .then(response => {
+            contentLength = response.headers.get('content-length');
+            contentRange = response.headers.get('content-range');
+            contentType = response.headers.get('content-type');
+            return response.body;
+        })
+            .then(stream => {
+            res.writeHead(200, {
+                "content-length": contentLength,
+                "content-range": contentRange,
+                "content-type": contentType,
+                "content-disposition": "attachment"
+            });
+            if (stream) {
+                stream.pipe(res);
+            }
+        });
+    }
 };
 __decorate([
     (0, common_1.Get)('resolveSingle'),
@@ -188,6 +216,14 @@ __decorate([
     __metadata("design:paramtypes", [Object, Object]),
     __metadata("design:returntype", Promise)
 ], ApiController.prototype, "getStream", null);
+__decorate([
+    (0, common_1.Get)('download/*'),
+    __param(0, (0, common_1.Req)()),
+    __param(1, (0, common_1.Res)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, Object]),
+    __metadata("design:returntype", Promise)
+], ApiController.prototype, "download", null);
 ApiController = __decorate([
     (0, common_1.Controller)('api'),
     (0, common_1.UseInterceptors)(common_1.CacheInterceptor),

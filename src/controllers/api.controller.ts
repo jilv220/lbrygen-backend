@@ -1,7 +1,8 @@
-import { Controller, Get, Query, Res, CacheInterceptor, UseInterceptors } from '@nestjs/common'
+import { Controller, Get, Query, Req, Res, CacheInterceptor, UseInterceptors, HttpCode } from '@nestjs/common'
 import { AppService } from '../app.service'
-import * as fs from 'fs'
+import { readFileSync } from 'fs'
 import { join } from 'path'
+import fetch from 'node-fetch'
 
 import { apiCall } from '../lbry'
 import { filterDup } from '../arrayUtils'
@@ -79,7 +80,7 @@ export class ApiController {
     let pageNum = query.p
     let isFetchNext = (query.n === 'y')
 
-    const fileContents = fs.readFileSync(join('./res', 'data.json'), 'utf8')
+    const fileContents = readFileSync(join('./res', 'data.json'), 'utf8')
     try {
 
       const data = JSON.parse(fileContents)
@@ -172,6 +173,43 @@ export class ApiController {
             daemonRes.result.streaming_url.replace(STREAM_IP, API_BASE)
         }
         res.send(daemonRes.result)
+      })
+  }
+
+  @Get('download/*')
+  async download(@Req() req, @Res() res): Promise<any> {
+
+    let blob = req.url.split('/').pop()
+    let streamingUrl = 'http://localhost:5280/stream/' + blob
+
+    let contentLength: any
+    let contentRange: any
+    let contentType: any
+
+    fetch(streamingUrl,
+      {
+        method: 'GET',
+      })
+      .then(response => {
+
+        contentLength = response.headers.get('content-length')
+        contentRange = response.headers.get('content-range')
+        contentType = response.headers.get('content-type')
+        
+        return response.body
+      })
+      .then(stream => {
+
+        res.writeHead(200, {
+          "content-length": contentLength,
+          "content-range": contentRange,
+          "content-type": contentType,
+          "content-disposition": "attachment"     // tell browser not to display the content inline
+        })
+
+        if (stream) {
+          stream.pipe(res)
+        }
       })
   }
 }
