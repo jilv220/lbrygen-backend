@@ -6,7 +6,7 @@ import fetch from 'node-fetch'
 
 import { apiCall } from '../lbry'
 import { filterDup } from '../arrayUtils'
-import { API_BASE, STREAM_IP } from '../env'
+import { API_BASE, API_PROD, STREAM_IP } from '../env'
 
 const PAGE_SIZE = 20
 
@@ -170,7 +170,7 @@ export class ApiController {
 
         if (daemonRes.result.streaming_url) {
           daemonRes.result.streaming_url =
-            daemonRes.result.streaming_url.replace(STREAM_IP, API_BASE)
+            daemonRes.result.streaming_url.replace(STREAM_IP, API_PROD)
         }
         res.send(daemonRes.result)
       })
