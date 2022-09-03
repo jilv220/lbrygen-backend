@@ -16,11 +16,8 @@ async function bootstrap() {
 }
 bootstrap();
 
-const server = express();
-Gun.init(server, gun_port)
-server.use(Gun.serve);
-server.listen(gun_port);
+const gunApp = express();
+gunApp.use(Gun.serve);
 
-server.get('/gun', (req, res) => {
-  res.send('Gun is up and running')
-})
+const server = gunApp.listen(gun_port);
+Gun.init(server, gun_port)
