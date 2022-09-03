@@ -2,9 +2,10 @@ import "gun/lib/axe";
 const Gun = require('gun')
 
 export let gun;
+export const serve = Gun.serve
+
 const GUN_PEERS = 
 [ 
-  'https://127.0.0.1:8765/gun',
   'https://gun-rs.iris.to/gun',
   'https://relay.peer.ooo/gun',
   'https://gun-us.herokuapp.com/gun'
@@ -19,10 +20,11 @@ export function useGun(opts?) {
   return gun;
 }
 
-export function init(server) {
-  useGun({web: server})
+export function init(server, host) {
+  useGun({web: server, host: host})
 }
 
 export default {
-  init
+  init,
+  serve
 }
