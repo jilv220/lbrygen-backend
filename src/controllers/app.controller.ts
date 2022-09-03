@@ -1,6 +1,7 @@
 import { Controller, Get, Res, Header } from '@nestjs/common';
 import { createReadStream } from 'fs';
 import { join } from 'path';
+import { useGun } from 'src/gun';
 import { AppService } from '../app.service';
 
 @Controller('')
