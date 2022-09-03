@@ -1,4 +1,5 @@
 import "gun/lib/axe";
+import "gun/lib/yson";  // Fix json blocking cpu
 const Gun = require('gun')
 
 export let gun;
